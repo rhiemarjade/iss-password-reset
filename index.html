@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISS Password Reset</title>
+<style>
+    :root {
+        --primary: #0b1979;
+        --primary-light: #172aa6;
+        --gold: #f2b705;
+        --bg: #eef1f5;
+        --surface: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #d9e0ef;
+        --danger: #b91c1c;
+        --success: #166534;
+        --radius: 6px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .brand {
+        min-height: 76px;
+        padding: 14px 28px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: #ffffff;
+        background: var(--primary);
+    }
+
+    .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--primary);
+        background: #ffffff;
+        font-weight: 900;
+        border: 3px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .brand h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    .brand p {
+        margin: 3px 0 0;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    main {
+        width: min(440px, calc(100% - 32px));
+        margin: 34px auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 30px;
+    }
+
+    h2 {
+        margin: 0;
+        color: var(--primary);
+        font-size: 28px;
+        text-align: center;
+    }
+
+    .subtitle {
+        margin: 10px 0 24px;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.45;
+    }
+
+    label {
+        display: block;
+        margin: 14px 0 6px;
+        font-weight: 700;
+    }
+
+    input {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font: inherit;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 4px;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        color: #ffffff;
+        background: var(--primary);
+    }
+
+    button:hover {
+        background: var(--primary-light);
+    }
+
+    button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .secondary {
+        color: #24324a;
+        background: #eef2f7;
+    }
+
+    .secondary:hover {
+        background: #e5eaf2;
+    }
+
+    .message {
+        min-height: 20px;
+        margin: 16px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+        text-align: center;
+    }
+
+    .message.error {
+        color: var(--danger);
+    }
+
+    .message.success {
+        color: var(--success);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .setup-warning {
+        padding: 12px;
+        border: 1px solid #f3c677;
+        border-radius: 4px;
+        background: #fff8e1;
+        color: #7c4a03;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+</style>
+</head>
+<body>
+<header class="brand">
+    <div class="brand-mark">ISS</div>
+    <div>
+        <h1>Integrated School System</h1>
+        <p>Password Reset</p>
+    </div>
+</header>
+
+<main>
+    <section id="routerPanel">
+        <h2>Checking reset link</h2>
+        <p class="subtitle">Please wait while ISS prepares the password reset page.</p>
+        <p class="message" id="routerMessage">Checking if the ISS Local App is open on this device...</p>
+        <button class="secondary hidden" id="continueHereBtn" type="button">Reset password on this page</button>
+    </section>
+
+    <section class="hidden" id="setupPanel">
+        <h2>Setup Needed</h2>
+        <p class="subtitle">This page is not configured yet.</p>
+        <div class="setup-warning">
+            Open this file in GitHub, then replace <strong>PASTE_SUPABASE_URL_HERE</strong> and
+            <strong>PASTE_SUPABASE_ANON_KEY_HERE</strong> with your ISS Supabase project values.
+            Never paste the service role key here.
+        </div>
+    </section>
+
+    <section class="hidden" id="resetPanel">
+        <h2>Set New Password</h2>
+        <p class="subtitle">Enter the new password for your ISS account. After this, return to the ISS Local App and sign in again.</p>
+
+        <label for="newPasswordInput">New Password</label>
+        <input id="newPasswordInput" type="password" placeholder="Enter new password" autocomplete="new-password">
+
+        <label for="confirmPasswordInput">Confirm Password</label>
+        <input id="confirmPasswordInput" type="password" placeholder="Confirm new password" autocomplete="new-password">
+
+        <button id="updatePasswordBtn" type="button">Update Password</button>
+        <p class="message" id="resetMessage"></p>
+    </section>
+
+    <section class="hidden" id="donePanel">
+        <h2>Password Updated</h2>
+        <p class="subtitle">Your password has been changed successfully.</p>
+        <p class="message success">You may now return to the ISS Local App and sign in with your new password.</p>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    /*
+        ISS Password Reset Router
+        Host this file on GitHub Pages.
+
+        Safe public values:
+        - SUPABASE_URL
+        - SUPABASE_ANON_KEY or publishable key
+
+        Never place SUPABASE_SERVICE_ROLE_KEY or any secret key in this file.
+    */
+
+    const SUPABASE_URL = "PASTE_SUPABASE_URL_HERE";
+    const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+
+    const LOCAL_APP_RESET_URL = "http://127.0.0.1:8000/";
+    const LOCAL_APP_HEALTH_URL = "http://127.0.0.1:8000/reset-health";
+    const LOCAL_CHECK_TIMEOUT_MS = 900;
+
+    let supabaseClient = null;
+    let sessionReady = false;
+
+    const routerPanel = document.getElementById("routerPanel");
+    const setupPanel = document.getElementById("setupPanel");
+    const resetPanel = document.getElementById("resetPanel");
+    const donePanel = document.getElementById("donePanel");
+    const routerMessage = document.getElementById("routerMessage");
+    const resetMessage = document.getElementById("resetMessage");
+    const continueHereBtn = document.getElementById("continueHereBtn");
+    const updatePasswordBtn = document.getElementById("updatePasswordBtn");
+    const newPasswordInput = document.getElementById("newPasswordInput");
+    const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+
+    function showPanel(activePanel) {
+        [routerPanel, setupPanel, resetPanel, donePanel].forEach((panel) => {
+            panel.classList.toggle("hidden", panel !== activePanel);
+        });
+    }
+
+    function setMessage(element, text, kind = "") {
+        element.textContent = text;
+        element.classList.remove("error", "success");
+
+        if (kind) {
+            element.classList.add(kind);
+        }
+    }
+
+    function isConfigured() {
+        return SUPABASE_URL
+            && SUPABASE_ANON_KEY
+            && !SUPABASE_URL.includes("PASTE_")
+            && !SUPABASE_ANON_KEY.includes("PASTE_");
+    }
+
+    function hasRecoveryDataInUrl() {
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+        return queryParams.has("code")
+            || queryParams.get("type") === "recovery"
+            || hashParams.get("type") === "recovery"
+            || hashParams.has("access_token");
+    }
+
+    function buildLocalResetUrl() {
+        const target = new URL(LOCAL_APP_RESET_URL);
+        const queryParams = new URLSearchParams(window.location.search);
+
+        queryParams.set("iss_reset", "1");
+
+        target.search = queryParams.toString();
+        target.hash = window.location.hash;
+
+        return target.toString();
+    }
+
+    async function isLocalIssAvailable() {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), LOCAL_CHECK_TIMEOUT_MS);
+
+        try {
+            await fetch(`${LOCAL_APP_HEALTH_URL}?t=${Date.now()}`, {
+                method: "GET",
+                mode: "no-cors",
+                cache: "no-store",
+                signal: controller.signal
+            });
+
+            return true;
+        } catch (error) {
+            return false;
+        } finally {
+            window.clearTimeout(timeout);
+        }
+    }
+
+    async function tryLocalRedirectFirst() {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (queryParams.get("force_web") === "1") {
+            return false;
+        }
+
+        setMessage(routerMessage, "Checking if the ISS Local App is open on this device...");
+
+        const localAvailable = await isLocalIssAvailable();
+
+        if (localAvailable) {
+            setMessage(routerMessage, "ISS Local App found. Redirecting to the app...");
+            window.location.replace(buildLocalResetUrl());
+            return true;
+        }
+
+        setMessage(routerMessage, "ISS Local App was not found on this device. You can reset the password here instead.");
+        continueHereBtn.classList.remove("hidden");
+        return false;
+    }
+
+    function createSupabaseClient() {
+        if (!supabaseClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: {
+                    detectSessionInUrl: false,
+                    persistSession: false,
+                    autoRefreshToken: false
+                }
+            });
+        }
+
+        return supabaseClient;
+    }
+
+    async function prepareRecoverySession() {
+        const client = createSupabaseClient();
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+        const code = queryParams.get("code");
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+
+        if (code) {
+            const { error } = await client.auth.exchangeCodeForSession(code);
+
+            if (error) {
+                throw error;
+            }
+        } else if (accessToken && refreshToken) {
+            const { error } = await client.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+            });
+
+            if (error) {
+                throw error;
+            }
+        }
+
+        const { data, error } = await client.auth.getSession();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data?.session) {
+            throw new Error("The reset session is missing or expired. Please request a new reset link from the ISS Local App.");
+        }
+
+        sessionReady = true;
+    }
+
+    async function showHostedResetForm() {
+        if (!isConfigured()) {
+            showPanel(setupPanel);
+            return;
+        }
+
+        try {
+            await prepareRecoverySession();
+            showPanel(resetPanel);
+            setMessage(resetMessage, "");
+            setTimeout(() => newPasswordInput.focus(), 0);
+        } catch (error) {
+            showPanel(resetPanel);
+            updatePasswordBtn.disabled = true;
+            setMessage(resetMessage, error.message || "This reset link is invalid or expired. Please request a new one.", "error");
+        }
+    }
+
+    async function updatePassword() {
+        const newPassword = newPasswordInput.value || "";
+        const confirmPassword = confirmPasswordInput.value || "";
+
+        if (!newPassword || !confirmPassword) {
+            setMessage(resetMessage, "Please enter and confirm the new password.", "error");
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setMessage(resetMessage, "Password must be at least 6 characters.", "error");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setMessage(resetMessage, "The passwords do not match.", "error");
+            return;
+        }
+
+        if (!sessionReady) {
+            setMessage(resetMessage, "The reset session is not ready. Please open the latest reset link again.", "error");
+            return;
+        }
+
+        updatePasswordBtn.disabled = true;
+        setMessage(resetMessage, "Updating password...");
+
+        const client = createSupabaseClient();
+        const { error } = await client.auth.updateUser({
+            password: newPassword
+        });
+
+        if (error) {
+            updatePasswordBtn.disabled = false;
+            setMessage(resetMessage, error.message, "error");
+            return;
+        }
+
+        await client.auth.signOut();
+
+        if (window.history?.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        showPanel(donePanel);
+    }
+
+    async function init() {
+        showPanel(routerPanel);
+
+        if (!hasRecoveryDataInUrl()) {
+            continueHereBtn.classList.remove("hidden");
+            setMessage(routerMessage, "This page did not receive a password recovery token. Open the latest reset link from your email.", "error");
+            return;
+        }
+
+        const redirected = await tryLocalRedirectFirst();
+
+        if (!redirected) {
+            await showHostedResetForm();
+        }
+    }
+
+    continueHereBtn.addEventListener("click", showHostedResetForm);
+    updatePasswordBtn.addEventListener("click", updatePassword);
+
+    confirmPasswordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            updatePassword();
+        }
+    });
+
+    init();
+</script>
+</body>
+</html>
