@@ -233,8 +233,8 @@
         Never place SUPABASE_SERVICE_ROLE_KEY or any secret key in this file.
     */
 
-    const SUPABASE_URL = "https://ajrtccnxzutjmlmiksin.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqcnRjY254enV0am1sbWlrc2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NDg4MTMsImV4cCI6MjA5MzMyNDgxM30.zc2v6WC9PbAHnwdq10GDRpr80bMGthR6XoNqkfqV-eI";
+    const SUPABASE_URL = "PASTE_SUPABASE_URL_HERE";
+    const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
 
     const LOCAL_APP_RESET_URL = "http://127.0.0.1:8000/";
     const LOCAL_APP_HEALTH_URL = "http://127.0.0.1:8000/reset-health";
@@ -303,14 +303,15 @@
         const timeout = window.setTimeout(() => controller.abort(), LOCAL_CHECK_TIMEOUT_MS);
 
         try {
-            await fetch(`${LOCAL_APP_HEALTH_URL}?t=${Date.now()}`, {
+            const response = await fetch(`${LOCAL_APP_HEALTH_URL}?t=${Date.now()}`, {
                 method: "GET",
-                mode: "no-cors",
+                mode: "cors",
                 cache: "no-store",
                 signal: controller.signal
             });
 
-            return true;
+            return response.status === 204
+                && response.headers.get("X-ISS-Reset-Health") === "ok";
         } catch (error) {
             return false;
         } finally {
@@ -330,7 +331,7 @@
         const localAvailable = await isLocalIssAvailable();
 
         if (localAvailable) {
-            setMessage(routerMessage, "ISS Local App found. Redirecting to the app...");
+            setMessage(routerMessage, "ISS Local App was verified on this device. Redirecting to the app...");
             window.location.replace(buildLocalResetUrl());
             return true;
         }
